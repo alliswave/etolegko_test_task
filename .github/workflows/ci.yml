@@ -1,0 +1,35 @@
+name: Проверки
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Получение исходного кода
+        uses: actions/checkout@v7.0.1
+      - name: Установка Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: "3.11"
+      - name: Установка uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: "0.6.8"
+      - name: Установка зависимостей
+        run: uv sync --locked --python 3.11
+      - name: Запуск тестов
+        run: uv run --python 3.11 --locked pytest
+      - name: Проверка стиля
+        run: uv run --python 3.11 --locked ruff check .
+      - name: Проверка форматирования
+        run: uv run --python 3.11 --locked ruff format --check .
+      - name: Проверка типов пакета и тестов
+        run: uv run --python 3.11 --locked mypy download_speed tests
+      - name: Проверка типов сценария запуска
+        run: uv run --python 3.11 --locked mypy download_speed.py
